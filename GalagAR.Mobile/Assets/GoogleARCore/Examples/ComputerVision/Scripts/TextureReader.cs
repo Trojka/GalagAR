@@ -20,6 +20,7 @@
 namespace GoogleARCore.Examples.ComputerVision
 {
     using System;
+    using System.IO;
     using GoogleARCore;
     using UnityEngine;
 
@@ -124,8 +125,10 @@ namespace GoogleARCore.Examples.ComputerVision
         /// </summary>
         public void Update()
         {
+            string filePath = Application.persistentDataPath + "/logging.txt";
             if (!enabled)
             {
+                File.AppendAllText(filePath, "TextureReader disabled> doing nothing");
                 return;
             }
 
@@ -134,12 +137,14 @@ namespace GoogleARCore.Examples.ComputerVision
             {
             case CommandType.Create:
             {
+                        File.AppendAllText(filePath, "TextureReader Update > Create");
                 m_TextureReaderApi.Create(ImageFormat, ImageWidth, ImageHeight, ImageSampleMode == SampleMode.KeepAspectRatio);
                 break;
             }
 
             case CommandType.Reset:
             {
+                        File.AppendAllText(filePath, "TextureReader Update > Reset");
                 m_TextureReaderApi.ReleaseFrame(m_ImageBufferIndex);
                 m_TextureReaderApi.Destroy();
                 m_TextureReaderApi.Create(ImageFormat, ImageWidth, ImageHeight, ImageSampleMode == SampleMode.KeepAspectRatio);
@@ -149,6 +154,7 @@ namespace GoogleARCore.Examples.ComputerVision
 
             case CommandType.ReleasePreviousBuffer:
             {
+                        File.AppendAllText(filePath, "TextureReader Update > ReleasePreviousBuffer");
                 // Clear previously used buffer, and submits a new request.
                 m_TextureReaderApi.ReleaseFrame(m_ImageBufferIndex);
                 m_ImageBufferIndex = -1;
@@ -157,20 +163,36 @@ namespace GoogleARCore.Examples.ComputerVision
 
             case CommandType.ProcessNextFrame:
             {
+                        File.AppendAllText(filePath, "TextureReader Update > ProcessNextFrame");
                 if (m_ImageBufferIndex >= 0)
                 {
+                            File.AppendAllText(filePath, "TextureReader Update > m_ImageBufferIndex >= 0");
                     // Get image pixels from previously submitted request.
                     int bufferSize = 0;
                     IntPtr pixelBuffer = m_TextureReaderApi.AcquireFrame(m_ImageBufferIndex, ref bufferSize);
 
-                    if (pixelBuffer != IntPtr.Zero && OnImageAvailableCallback != null)
+                    if (pixelBuffer != IntPtr.Zero)
                     {
-                        OnImageAvailableCallback(ImageFormat, ImageWidth, ImageHeight, pixelBuffer, bufferSize);
+                                if(OnImageAvailableCallback != null)
+                                {
+                                    File.AppendAllText(filePath, "TextureReader Update > OnImageAvailableCallback");
+                                    OnImageAvailableCallback(ImageFormat, ImageWidth, ImageHeight, pixelBuffer, bufferSize);
+                                }
+                                else {
+                                    File.AppendAllText(filePath, "TextureReader Update > no OnImageAvailableCallback");
+                                }
+
                     }
+                            else{
+                                File.AppendAllText(filePath, "TextureReader Update > pixelBuffer zero");
+                            }
 
                     // Release the texture reader internal buffer.
                     m_TextureReaderApi.ReleaseFrame(m_ImageBufferIndex);
                 }
+                        else{
+                            File.AppendAllText(filePath, "TextureReader Update > m_ImageBufferIndex < 0");
+                        }
 
                 break;
             }
@@ -183,6 +205,7 @@ namespace GoogleARCore.Examples.ComputerVision
             // Submit reading request for the next frame.
             if (Frame.CameraImage.Texture != null)
             {
+                File.AppendAllText(filePath, "TextureReader Update > Frame.CameraImage.Texture != null");
                 int textureId = Frame.CameraImage.Texture.GetNativeTexturePtr().ToInt32();
                 m_ImageBufferIndex =
                     m_TextureReaderApi.SubmitFrame(textureId, k_ARCoreTextureWidth, k_ARCoreTextureHeight);

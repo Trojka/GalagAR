@@ -2,18 +2,84 @@
 using System.Collections.Generic;
 using UnityEngine;
 using GoogleARCore;
+using GoogleARCore.Examples.ComputerVision;
+using System.IO;
 
 public class AppController : MonoBehaviour {
 
     private bool m_IsQuitting = false;
 
+    private List<DetectedPlane> _allPlanes = new List<DetectedPlane>();
+    private List<Vector3> _allPlaneBoundaryPoints = new List<Vector3>();
+    private List<GameObject> _allBoundaryMarkers = new List<GameObject>();
+
+    public GameObject _verticalPlaneFoundMarker;
+    public GameObject _horizontalPlaneFoundMarker;
+    public GameObject _planeBoundaryMarker;
+
 	// Use this for initialization
 	void Start () {
         QuitOnConnectionErrors();
+
+        _verticalPlaneFoundMarker.SetActive(false);
+        _horizontalPlaneFoundMarker.SetActive(false);
 	}
-	
-	// Update is called once per frame
+
+    // Update is called once per frame
 	void Update () {
+        foreach(GameObject boundaryMarker in _allBoundaryMarkers)
+        {
+            boundaryMarker.SetActive(false);
+        }
+
+        // Hide snackbar when currently tracking at least one plane.
+        Session.GetTrackables<DetectedPlane>(_allPlanes);
+
+        bool horizontalPlanesFound = false;
+        bool verticalPlanesFound = false;
+
+        int boundaryPointCount = 0;
+        for (int i = 0; i < _allPlanes.Count; i++)
+        {
+            //if (m_AllPlanes[i].TrackingState == TrackingState.Tracking)
+            //{
+            //    showSearchingUI = false;
+            //    break;
+            //}
+
+            if(_allPlanes[i].PlaneType == DetectedPlaneType.HorizontalUpwardFacing
+               || _allPlanes[i].PlaneType == DetectedPlaneType.HorizontalDownwardFacing)
+            {
+                horizontalPlanesFound = true;
+
+                _allPlanes[i].GetBoundaryPolygon(_allPlaneBoundaryPoints);
+                foreach(var boundaryPoint in _allPlaneBoundaryPoints)
+                {
+                    if(_allBoundaryMarkers.Count < boundaryPointCount)
+                    {
+                        _allBoundaryMarkers[boundaryPointCount].transform.position = boundaryPoint;
+                        _allBoundaryMarkers[boundaryPointCount].SetActive(true);
+                    }
+                    else 
+                    {
+                        var newMarker = Instantiate(_planeBoundaryMarker);
+                        newMarker.transform.position = boundaryPoint;
+                        newMarker.SetActive(true);
+                        _allBoundaryMarkers.Add(newMarker);
+                    }
+                    boundaryPointCount++;
+                }
+            }
+
+            if (_allPlanes[i].PlaneType == DetectedPlaneType.Vertical)
+            {
+                verticalPlanesFound = true;
+            }
+        }
+
+        _verticalPlaneFoundMarker.SetActive(verticalPlanesFound);
+        _horizontalPlaneFoundMarker.SetActive(horizontalPlanesFound);
+
         if (Session.Status != SessionStatus.Tracking)
         {
             const int lostTrackingSleepTimeout = 15;
