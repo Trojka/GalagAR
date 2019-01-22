@@ -9,39 +9,39 @@ public class PortalWindow : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        foreach (var material in materials)
-        {
-            material.SetInt("_StencilTest", (int)CompareFunction.Equal);
-        }
+        UpdateMaterials(false);
 	}
 
-    private void OnTriggerStay(Collider other)
+    void UpdateMaterials(bool fullRender) {
+        int compareFunction = fullRender ?(int)CompareFunction.NotEqual : (int)CompareFunction.Equal;
+        foreach (var material in materials)
+        {
+            material.SetInt("_StencilTest", compareFunction);
+        }
+    }
+
+    bool IsInFront(Vector3 otherPosition) {
+        return transform.position.z > otherPosition.z;
+    }
+
+    void OnTriggerStay(Collider other)
     {
         if (other.name != "Main Camera")
             return;
 
-        if(transform.position.z > other.transform.position.z)
+        if(IsInFront(other.transform.position))
         {
-            foreach(var material in materials)
-            {
-                material.SetInt("_StencilTest", (int)CompareFunction.Equal);
-            }
+            UpdateMaterials(false);
         }
         else
         {
-            foreach (var material in materials)
-            {
-                material.SetInt("_StencilTest", (int)CompareFunction.NotEqual);
-            }
+            UpdateMaterials(true);
         }
     }
 
     void OnDestroy()
     {
-        foreach (var material in materials)
-        {
-            material.SetInt("_StencilTest", (int)CompareFunction.NotEqual);
-        }
+        UpdateMaterials(true);
     }
 
     // Update is called once per frame
