@@ -5,6 +5,11 @@ using UnityEngine.Rendering;
 
 public class PortalWindow : MonoBehaviour {
 
+    bool wasInFront;
+    bool inOtherWorld;
+
+    bool isColliding;
+
     public Material[] materials;
 
 	// Use this for initialization
@@ -20,23 +25,59 @@ public class PortalWindow : MonoBehaviour {
         }
     }
 
-    bool IsInFront(Vector3 otherPosition) {
-        return transform.position.z > otherPosition.z;
+    bool IsInFront() {
+        //return transform.position.z > Camera.main.transform.position.z;
+
+        Vector3 playerPos = Camera.main.transform.position + Camera.main.transform.forward * Camera.main.nearClipPlane;
+        Vector3 playerPosToPortal = transform.InverseTransformPoint(playerPos);
+
+        return playerPosToPortal.z >= 0;
     }
 
-    void OnTriggerStay(Collider other)
+    void OnTriggerEnter(Collider other)
     {
         if (other.name != "Main Camera")
             return;
 
-        if(IsInFront(other.transform.position))
+        Debug.Log("OnTriggerEnter");
+
+        wasInFront = IsInFront();
+        isColliding = true;
+
+        Debug.Log("OnTriggerEnter wasInFront:" + wasInFront + ", isColliding:" + isColliding);
+
+        //if(IsInFront(other.transform.position))
+        //{
+        //    UpdateMaterials(false);
+        //}
+        //else
+        //{
+        //    UpdateMaterials(true);
+        //}
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.name != "Main Camera")
+            return;
+
+        isColliding = false;
+
+        Debug.Log("OnTriggerExit isColliding:" + isColliding);
+    }
+
+    void CameraColliding() {
+        if (!isColliding)
+            return;
+
+        bool isInFront = IsInFront();
+        if ((isInFront && !wasInFront) || (wasInFront && !isInFront))
         {
-            UpdateMaterials(false);
+            inOtherWorld = !inOtherWorld;
+            UpdateMaterials(inOtherWorld);
         }
-        else
-        {
-            UpdateMaterials(true);
-        }
+
+        wasInFront = isInFront;
     }
 
     void OnDestroy()
@@ -46,6 +87,6 @@ public class PortalWindow : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-		
+        CameraColliding();
 	}
 }
