@@ -5,19 +5,27 @@ using UnityEngine.Rendering;
 
 public class PortalWindow : MonoBehaviour {
 
-    bool wasInFront;
-    bool inOtherWorld;
+    bool wasCameraInFront;
+    bool cameraInOtherWorld;
+    bool isCameraColliding;
 
-    bool isColliding;
+    bool wasCubeInFront;
+    bool cubeInOtherWorld = true;
+    bool isCubeColliding;
 
     public Material[] materials;
 
+    public Material virtualWorlMaterial;
+    public Material realWorlCubeMaterial;
+
+    public GameObject cube1;
+
 	// Use this for initialization
 	void Start () {
-        UpdateMaterials(false);
+        UpdateStencilMaterials(false);
 	}
 
-    void UpdateMaterials(bool fullRender) {
+    void UpdateStencilMaterials(bool fullRender) {
         int compareFunction = fullRender ?(int)CompareFunction.NotEqual : (int)CompareFunction.Equal;
         foreach (var material in materials)
         {
@@ -25,68 +33,107 @@ public class PortalWindow : MonoBehaviour {
         }
     }
 
-    bool IsInFront() {
-        //return transform.position.z > Camera.main.transform.position.z;
+    void UpdateCubeMaterial(bool virtualWorld) {
+        cube1.GetComponent<MeshRenderer>().material = virtualWorld ? virtualWorlMaterial : realWorlCubeMaterial;
+    }
 
+    bool IsCameraInFront() {
         Vector3 playerPos = Camera.main.transform.position + Camera.main.transform.forward * Camera.main.nearClipPlane;
-        Vector3 playerPosToPortal = transform.InverseTransformPoint(playerPos);
 
-        return playerPosToPortal.z >= 0;
+        return IsEntityInFront(playerPos);
+    }
+
+    bool IsEntityInFront(Vector3 entityPos) {
+        Vector3 entityPosToPortal = transform.InverseTransformPoint(entityPos);
+
+        //Debug.Log("IsEntityInFront: entityPos=" + entityPos + ", entityPosToPortal=" + entityPosToPortal);
+
+        return entityPosToPortal.z >= 0;
     }
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.name != "Main Camera")
-            return;
+        Debug.Log("OnTriggerEnter: other=" + other.name);
 
-        Debug.Log("OnTriggerEnter");
+        if(other.name == "Cube1")
+        {
+            Debug.Log("OnTriggerEnter: is Cube1");
 
-        wasInFront = IsInFront();
-        isColliding = true;
+            wasCubeInFront = IsEntityInFront(cube1.transform.position);
+            isCubeColliding = true;
 
-        Debug.Log("OnTriggerEnter wasInFront:" + wasInFront + ", isColliding:" + isColliding);
+            Debug.Log("OnTriggerEnter: wasInFront:" + wasCubeInFront + ", isColliding:" + isCubeColliding);
+        }
 
-        //if(IsInFront(other.transform.position))
-        //{
-        //    UpdateMaterials(false);
-        //}
-        //else
-        //{
-        //    UpdateMaterials(true);
-        //}
+        if (other.name == "Main Camera")
+        {
+            Debug.Log("OnTriggerEnter: is MainCamera");
+
+            wasCameraInFront = IsCameraInFront();
+            isCameraColliding = true;
+
+            Debug.Log("OnTriggerEnter: wasInFront:" + wasCameraInFront + ", isColliding:" + isCameraColliding);
+        }
+
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.name != "Main Camera")
-            return;
+        Debug.Log("OnTriggerExit: other=" + other.name);
 
-        isColliding = false;
-
-        Debug.Log("OnTriggerExit isColliding:" + isColliding);
-    }
-
-    void CameraColliding() {
-        if (!isColliding)
-            return;
-
-        bool isInFront = IsInFront();
-        if ((isInFront && !wasInFront) || (wasInFront && !isInFront))
+        if (other.name == "Cube1")
         {
-            inOtherWorld = !inOtherWorld;
-            UpdateMaterials(inOtherWorld);
+            Debug.Log("OnTriggerExit: is Cube1");
+
+            isCubeColliding = false;
+
+            Debug.Log("OnTriggerExit: isColliding:" + isCubeColliding);
         }
 
-        wasInFront = isInFront;
+        if (other.name == "Main Camera")
+        {
+            Debug.Log("OnTriggerExit: is MainCamera");
+
+            isCameraColliding = false;
+
+            Debug.Log("OnTriggerExit: isColliding:" + isCameraColliding);
+        }
+}
+
+    void SomethingColliding() {
+
+        if(isCubeColliding)
+        {
+            bool isInFront = IsEntityInFront(cube1.transform.position);
+            if ((isInFront && !wasCubeInFront) || (wasCubeInFront && !isInFront))
+            {
+                cubeInOtherWorld = !cubeInOtherWorld;
+                UpdateCubeMaterial(cubeInOtherWorld);
+            }
+
+            wasCubeInFront = isInFront;
+        }
+
+        if(isCameraColliding)
+        {
+            bool isInFront = IsCameraInFront();
+            if ((isInFront && !wasCameraInFront) || (wasCameraInFront && !isInFront))
+            {
+                cameraInOtherWorld = !cameraInOtherWorld;
+                UpdateStencilMaterials(cameraInOtherWorld);
+            }
+
+            wasCameraInFront = isInFront;
+        }
     }
 
     void OnDestroy()
     {
-        UpdateMaterials(true);
+        UpdateStencilMaterials(true);
     }
 
     // Update is called once per frame
     void Update () {
-        CameraColliding();
+        SomethingColliding();
 	}
 }
