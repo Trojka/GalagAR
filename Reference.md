@@ -26,7 +26,11 @@ https://jacquesh.github.io/post/fortunes-algorithm/
 for unity
 https://github.com/jesta88/Unity-Voronoi
 
-
+explosion
+=========
+https://www.reddit.com/r/gamedev/comments/1mldr3/how_do_i_create_a_3d_dynamic_destructible/
+https://gamedevelopment.tutsplus.com/tutorials/how-to-make-an-object-shatter-into-smaller-fragments-in-unity--gamedev-11795
+https://unity3d.com/learn/tutorials/topics/physics/adding-physics-forces
 
 used software
 =============
