@@ -35,8 +35,48 @@ public class VoronoiTest : MonoBehaviour {
     {
         _sites.Clear();
 
+        foreach(var siteSrc in GenerateRectangulatSiteSources())
+        {
+            _sites.AddRange(siteSrc.Spawn());
+        }
+    }
+
+    interface ISpawnSite {
+        List<Point> Spawn();
+    }
+
+    class RectSiteSource : ISpawnSite {
+        public float xmin;
+        public float xmax;
+        public float ymin;
+        public float ymax;
+        public int siteCount;
+
+        public List<Point> Spawn()
+        {
+            var result = new List<Point>();
+
+            if (xmin == xmax || ymin == ymax)
+                return result;
+
+            for (int i = 0; i < siteCount; i++)
+            {
+                float x = Random.Range(xmin, xmax);
+                float y = Random.Range(ymin, ymax);
+                var site = new Point(x, y);
+                result.Add(site);
+            }
+
+            return result;
+        }
+    }
+
+    List<RectSiteSource> GenerateRectangulatSiteSources() 
+    {
+        var result = new List<RectSiteSource>();
+
         float[] bands = new[] { 5f, 15f, 30f };
-        int[] bandSize = new[] { 30, 10, 5 };
+        int[] bandSiteCount = new[] { 30, 10, 5 };
 
         float bandMinX = bounds.min.x;
         float bandMaxX = bounds.max.x;
@@ -44,28 +84,53 @@ public class VoronoiTest : MonoBehaviour {
         float bandMaxY = bounds.max.z;
         for (int i = 0; i < bands.Count(); i++)
         {
-            for (int j = 0; j < bandSize[i]; j++)
-            {                    
-                float xl = Random.Range(bandMinX, bandMinX + bands[i]);
-                float yl = Random.Range(bounds.min.z, bounds.max.z);
-                Point sitel = new Point(xl, yl);
+            var rl = new RectSiteSource()
+            {
+                xmin = bandMinX,
+                xmax = bandMinX + bands[i],
+                ymin = bounds.min.z,
+                ymax = bounds.max.z,
+                siteCount = bandSiteCount[i]
+            };
+            result.Add(rl);
 
-                float xr = Random.Range(bandMaxX - bands[i], bandMaxX);
-                float yr = Random.Range(bounds.min.z, bounds.max.z);
-                Point siter = new Point(xr, yr);
+            var rr = new RectSiteSource()
+            {
+                xmin = bandMaxX - bands[i],
+                xmax = bandMaxX,
+                ymin = bounds.min.z,
+                ymax = bounds.max.z,
+                siteCount = bandSiteCount[i]
+            };
+            result.Add(rr);
 
-                //float xl = Random.Range(bandMinX, bandMinX + bands[i]);
-                //float yl = Random.Range(bandMinY, bandMinY + bands[i]);
-                //Point site = new Point(xl, yl);
+            var rt = new RectSiteSource()
+            {
+                xmin = bandMinX + bands[i],
+                xmax = bandMaxX - bands[i],
+                ymin = bandMinY,
+                ymax = bandMinY + bands[i],
+                siteCount = bandSiteCount[i]
+            };
+            result.Add(rt);
 
-                //float xl = Random.Range(bandMinX, bandMinX + bands[i]);
-                //float yl = Random.Range(bandMinY, bandMinY + bands[i]);
-                //Point site = new Point(xl, yl);
+            var rb = new RectSiteSource()
+            {
+                xmin = bandMinX + bands[i],
+                xmax = bandMaxX - bands[i],
+                ymin = bandMaxY - bands[i],
+                ymax = bandMaxY,
+                siteCount = bandSiteCount[i]
+            };
+            result.Add(rb);
 
-                _sites.Add(sitel);
-                _sites.Add(siter);
-            }
+            bandMinX = bandMinX + bands[i];
+            bandMaxX = bandMaxX - bands[i];
+            bandMinY = bandMinY + bands[i];
+            bandMaxY = bandMaxY - bands[i];
         }
+
+        return result;
     }
 
     void CalculateVoronoi()
@@ -75,6 +140,12 @@ public class VoronoiTest : MonoBehaviour {
 
     private void OnDrawGizmos()
     {
+        foreach (var siteSrc in GenerateRectangulatSiteSources())
+        {
+            Gizmos.color = Color.white;
+            Gizmos.DrawLine(new Vector3(siteSrc.xmin, 0, siteSrc.ymin), new Vector3(siteSrc.xmax, 0, siteSrc.ymax));
+        }
+
         foreach(var site in _sites)
         {
             Gizmos.color = Color.red;

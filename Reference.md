@@ -18,6 +18,15 @@ https://github.com/googlecreativelab/arexperiments-portal-painter
 https://killertee.wordpress.com/2018/06/07/create-a-dimension-portal-with-arcore/
 https://www.youtube.com/watch?v=OBb4iUiXaRA
 
+voronoi diagram
+===============
+https://en.wikipedia.org/wiki/Fortune%27s_algorithm
+http://www.ams.org/publicoutreach/feature-column/fcarc-voronoi
+https://jacquesh.github.io/post/fortunes-algorithm/
+for unity
+https://github.com/jesta88/Unity-Voronoi
+
+
 
 used software
 =============
