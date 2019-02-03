@@ -4,7 +4,10 @@ using UnityEngine;
 
 public class ExplosionController : MonoBehaviour {
 
+    public Material explosionPartMaterial;
     public GameObject partTemplate;
+    [Range(10, 100)]
+    public float explosionForce = 100;
 
     float _wallWidth = 10;
     float _wallHeight = 10;
@@ -29,6 +32,7 @@ public class ExplosionController : MonoBehaviour {
         foreach(var part in _wallParts) {
             Destroy(part);
         }
+        _wallParts.Clear();
 
         for (int w = 1; w <= _wallWidth; w++)
         {
@@ -48,5 +52,18 @@ public class ExplosionController : MonoBehaviour {
     }
 
     void Explode() {
+        Debug.Log("Explode");
+
+        //int partIndex = (int)(_wallWidth * (1 + _wallHeight) / 2);
+        //var part = _wallParts[partIndex];
+
+        //part.GetComponent<MeshRenderer>().material = explosionPartMaterial;
+
+        foreach(var part in _wallParts)
+        {
+            var partRigidBody = part.GetComponent<Rigidbody>();
+            partRigidBody.AddExplosionForce(explosionForce, this.transform.position, 10f, 0f, ForceMode.Impulse);
+        }
+
     }
 }
