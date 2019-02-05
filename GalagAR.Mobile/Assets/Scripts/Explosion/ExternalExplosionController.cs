@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ExplosionController : MonoBehaviour {
+public class ExternalExplosionController : MonoBehaviour {
 
     public Material explosionPartMaterial;
     public GameObject partTemplate;
