@@ -14,6 +14,8 @@ public class InternalExplosionController : MonoBehaviour {
 
     int _hullSize = 4;
     List<GameObject> _hullParts;
+    GameObject _refPart;
+    Vector3 _refPos;
 
 	// Use this for initialization
 	void Start () {
@@ -44,6 +46,7 @@ public class InternalExplosionController : MonoBehaviour {
             Destroy(part);
         }
         _hullParts.Clear();
+        _refPart = null;
 
         int halfSize = _hullSize / 2;
 
@@ -63,6 +66,13 @@ public class InternalExplosionController : MonoBehaviour {
                             this.transform.position.z + z);
                         part.SetActive(true);
 
+                        if (_refPart == null)
+                        {
+                            _refPart = part;
+                            _refPos = _refPart.transform.position;
+                        }
+
+                            
                         _hullParts.Add(part);
                     }
                     else
@@ -103,13 +113,19 @@ public class InternalExplosionController : MonoBehaviour {
     }
 
     void Explode() {
+        var newPos = _refPart.transform.position;
+        var calcPos = newPos - _refPos;
+        var explodePos = new Vector3(calcPos.x, calcPos.y, 0);
+
+        //var explodePos = this.transform.position;
+
         foreach (var part in _hullParts)
         {
             var partRigidBody = part.GetComponent<Rigidbody>();
             if (applyGravityOnExplosion)
                 partRigidBody.useGravity = true;
             
-            partRigidBody.AddExplosionForce(explosionForce, this.transform.position, 10f, 0f, ForceMode.Impulse);
+            partRigidBody.AddExplosionForce(explosionForce, explodePos, 10f, 0f, ForceMode.Impulse);
         }
     }
 
