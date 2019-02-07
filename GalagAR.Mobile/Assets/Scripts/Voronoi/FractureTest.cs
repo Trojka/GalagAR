@@ -4,30 +4,33 @@ using System.Linq;
 using UnityEngine;
 using Voronoi;
 
-public class VoronoiTest : MonoBehaviour {
+public class FractureTest : MonoBehaviour {
 
     FortuneVoronoi _voronoi;
     VoronoiGraph _result;
 
-    BoundingRect _bounds;
-
-    //int numberOfSites = 10;
     List<Point> _sites;
+    BoundingRect _bounds;
 
 	// Use this for initialization
 	void Start () {
         _sites = new List<Point>();
-        _bounds = new BoundingRect(){ xmin = 0, ymin = 0, xmax = 100, ymax = 100 };
         _voronoi = new FortuneVoronoi();
+        _bounds = new BoundingRect() { 
+            xmin = this.transform.position.x - this.transform.localScale.x/2, 
+            ymin = this.transform.position.y - this.transform.localScale.y / 2, 
+            xmax = this.transform.position.x + this.transform.localScale.x / 2, 
+            ymax = this.transform.position.y + this.transform.localScale.y / 2 };
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if(Input.GetKeyDown(KeyCode.C))
+        if (Input.GetKeyDown(KeyCode.C))
         {
             _result = null;
             CreateSites();
             CalculateVoronoi();
+            //Fracture();
         }
 	}
 
@@ -35,17 +38,17 @@ public class VoronoiTest : MonoBehaviour {
     {
         _sites.Clear();
 
-        foreach(var siteSrc in GenerateRectangulatSiteSources())
+        foreach (var siteSrc in GenerateRectangulatSiteSources())
         {
             _sites.AddRange(siteSrc.Spawn());
         }
     }
 
-    List<RectSiteSource> GenerateRectangulatSiteSources() 
+    List<RectSiteSource> GenerateRectangulatSiteSources()
     {
         var result = new List<RectSiteSource>();
 
-        float[] bands = new[] { 5f, 15f, 30f };
+        float[] bands = new[] { 0.5f, 1.5f, 3f };
         int[] bandSiteCount = new[] { 30, 10, 5 };
 
         float bandMinX = _bounds.xmin;
@@ -108,35 +111,67 @@ public class VoronoiTest : MonoBehaviour {
         _result = _voronoi.Compute(_sites, _bounds);
     }
 
+    void Fracture()
+    {
+        float z = this.transform.position.z;
+        if (_result != null)
+        {
+            foreach (var cell in _result.cells)
+            {
+                var meshPoints = new Vector3[1 + cell.halfEdges.Count];
+                var triangles = new int[3 * cell.halfEdges.Count];
+
+                var site = cell.site;
+
+                meshPoints[0] = new Vector3(site.x, site.y, z);
+
+                int meshCount = 1;
+                foreach (var halfEdge in cell.halfEdges)
+                {
+                    var pt1 = halfEdge.GetStartPoint();
+                    var pt2 = halfEdge.GetEndPoint();
+
+                    meshPoints[meshCount] = new Vector3(pt1.x, pt1.y, z);
+                    meshCount++;
+                    meshPoints[meshCount] = new Vector3(pt2.x, pt2.y, z);
+                    meshCount++;
+
+                    // clockwise means ordering by x and then by y
+
+                }
+            }
+        }
+    }
+
     private void OnDrawGizmos()
     {
         foreach (var siteSrc in GenerateRectangulatSiteSources())
         {
             Gizmos.color = Color.white;
-            Gizmos.DrawLine(new Vector3(siteSrc.xmin, 0, siteSrc.ymin), new Vector3(siteSrc.xmax, 0, siteSrc.ymax));
+            Gizmos.DrawLine(new Vector3(siteSrc.xmin, siteSrc.ymin, 0), new Vector3(siteSrc.xmax, 0, siteSrc.ymax));
         }
 
-        foreach(var site in _sites)
+        foreach (var site in _sites)
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(new Vector3(site.x, 0, site.y), 0.9f);
+            Gizmos.DrawWireSphere(new Vector3(site.x, site.y, 0), 0.1f);
         }
 
-        if(_result != null)
+        if (_result != null)
         {
-            foreach(var cell in _result.cells)
+            foreach (var cell in _result.cells)
             {
                 Gizmos.color = Color.blue;
-                Gizmos.DrawSphere(new Vector3(cell.site.x, 0, cell.site.y), 0.5f);
+                Gizmos.DrawSphere(new Vector3(cell.site.x, cell.site.y, 0), 0.05f);
 
-                foreach(var halfEdge in cell.halfEdges)
+                foreach (var halfEdge in cell.halfEdges)
                 {
                     var pt1 = halfEdge.GetStartPoint();
                     var pt2 = halfEdge.GetEndPoint();
 
                     Gizmos.DrawLine(
-                        new Vector3(pt1.x, 0, pt1.y),
-                        new Vector3(pt2.x, 0, pt2.y)
+                        new Vector3(pt1.x, pt1.y, 0),
+                        new Vector3(pt2.x, pt2.y, 0)
                     );
                 }
             }

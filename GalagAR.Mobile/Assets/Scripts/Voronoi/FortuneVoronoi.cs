@@ -60,7 +60,7 @@ namespace Voronoi
             this.cells = new List<Cell>();
         }
 
-        public VoronoiGraph Compute(List<Point> sites, Bounds bbox)
+        public VoronoiGraph Compute(List<Point> sites, BoundingRect bbox)
         {
             this.Reset();
 
@@ -719,7 +719,7 @@ namespace Voronoi
         // return value:
         //   false: the dangling va couldn't be connected
         //   true: the dangling va could be connected
-        public bool ConnectEdge(Edge edge, Bounds bbox)
+        public bool ConnectEdge(Edge edge, BoundingRect bbox)
         {
             // skip if end point already connected
             Point vb = edge.vb;
@@ -730,10 +730,10 @@ namespace Voronoi
 
             // make local copy for performance purpose
             Point va = edge.va;
-            float xl = bbox.min.x;
-            float xr = bbox.max.x;
-            float yt = bbox.min.z;
-            float yb = bbox.max.z;
+            float xl = bbox.xmin;
+            float xr = bbox.xmax;
+            float yt = bbox.ymin;
+            float yb = bbox.ymax;
             Point lSite = edge.lSite;
             Point rSite = edge.rSite;
             float lx = lSite.x;
@@ -907,7 +907,7 @@ namespace Voronoi
         //   http://www.skytopia.com/project/articles/compsci/clipping.html
         // Thanks!
         // A bit modified to minimize code paths
-        public bool ClipEdge(Edge edge, Bounds bbox)
+        public bool ClipEdge(Edge edge, BoundingRect bbox)
         {
             float ax = edge.va.x;
             float ay = edge.va.y;
@@ -919,7 +919,7 @@ namespace Voronoi
             float dy = by - ay;
 
             // left
-            float q = ax - bbox.min.x;
+            float q = ax - bbox.xmin;
             if (dx == 0 && q < 0) { return false; }
             float r = -q / dx;
             if (dx < 0)
@@ -933,7 +933,7 @@ namespace Voronoi
                 if (r > t0) { t0 = r; }
             }
             // right
-            q = bbox.max.x - ax;
+            q = bbox.xmax - ax;
             if (dx == 0 && q < 0) { return false; }
             r = q / dx;
             if (dx < 0)
@@ -947,7 +947,7 @@ namespace Voronoi
                 if (r < t1) { t1 = r; }
             }
             // top
-            q = ay - bbox.min.z;
+            q = ay - bbox.ymin;
             if (dy == 0 && q < 0) { return false; }
             r = -q / dy;
             if (dy < 0)
@@ -961,7 +961,7 @@ namespace Voronoi
                 if (r > t0) { t0 = r; }
             }
             // bottom        
-            q = bbox.max.z - ay;
+            q = bbox.ymax - ay;
             if (dy == 0 && q < 0) { return false; }
             r = q / dy;
             if (dy < 0)
@@ -1007,7 +1007,7 @@ namespace Voronoi
         }
 
         // Connect/cut edges at bounding box
-        public void ClipEdges(Bounds bbox)
+        public void ClipEdges(BoundingRect bbox)
         {
             // connect all dangling edges to bounding box
             // or get rid of them if it can't be done
@@ -1036,14 +1036,14 @@ namespace Voronoi
         // The cells are bound by the supplied bounding box.
         // Each cell refers to its associated site, and a list
         // of halfedges ordered counterclockwise.
-        public void CloseCells(Bounds bbox)
+        public void CloseCells(BoundingRect bbox)
         {
             // prune, order halfedges, then add missing ones
             // required to close cells
-            float xl = bbox.min.x;
-            float xr = bbox.max.x;
-            float yt = bbox.min.z;
-            float yb = bbox.max.z;
+            float xl = bbox.xmin;
+            float xr = bbox.xmax;
+            float yt = bbox.ymin;
+            float yb = bbox.ymax;
 
             int badIterations = 0;
 
