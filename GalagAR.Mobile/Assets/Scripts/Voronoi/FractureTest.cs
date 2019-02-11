@@ -10,6 +10,7 @@ public class FractureTest : MonoBehaviour {
     VoronoiGraph _result;
 
     List<Point> _sites;
+    List<GameObject> _siteObjects;
     BoundingRect _bounds;
 
 	// Use this for initialization
@@ -30,7 +31,7 @@ public class FractureTest : MonoBehaviour {
             _result = null;
             CreateSites();
             CalculateVoronoi();
-            //Fracture();
+            Fracture();
         }
 	}
 
@@ -113,12 +114,24 @@ public class FractureTest : MonoBehaviour {
 
     void Fracture()
     {
+        if(_siteObjects != null)
+        {
+            Debug.Log("destroying all siteObjects");
+            foreach (var siteObject in _siteObjects)
+                Destroy(siteObject);
+
+            _siteObjects.Clear();
+        }
+        else {
+            _siteObjects = new List<GameObject>();
+        }
+
         float z = this.transform.position.z;
         if (_result != null)
         {
             foreach (var cell in _result.cells)
             {
-                var meshPoints = new Vector3[1 + cell.halfEdges.Count];
+                var meshPoints = new Vector3[1 + 2 * cell.halfEdges.Count];
                 var triangles = new int[3 * cell.halfEdges.Count];
 
                 var site = cell.site;
@@ -126,6 +139,7 @@ public class FractureTest : MonoBehaviour {
                 meshPoints[0] = new Vector3(site.x, site.y, z);
 
                 int meshCount = 1;
+                int triangleCount = 0;
                 foreach (var halfEdge in cell.halfEdges)
                 {
                     var pt1 = halfEdge.GetStartPoint();
@@ -136,9 +150,41 @@ public class FractureTest : MonoBehaviour {
                     meshPoints[meshCount] = new Vector3(pt2.x, pt2.y, z);
                     meshCount++;
 
-                    // clockwise means ordering by x and then by y
+                    // clockwise means ordering by x 
+                    //  take the first 
+                    //      and then order remaining two by y 
+                    var triangleCorners = new [] { 
+                        new { pt1 = meshPoints[0], i = 0 }, 
+                        new { pt1 = meshPoints[meshCount - 1], i = meshCount - 1 }, 
+                        new { pt1 = meshPoints[meshCount - 2], i = meshCount - 2 } 
+                    }.ToList();
+
+                    var firstCorner = triangleCorners.OrderBy(c => c.pt1.x).First();
+                    triangles[triangleCount] = firstCorner.i;
+                    triangleCount++;
+
+                    var remainingCorners = triangleCorners.OrderBy(c => c.pt1.x).Skip(1).OrderByDescending(c => c.pt1.y).ToList();
+                    foreach(var c in remainingCorners) {
+                        triangles[triangleCount] = c.i;
+                        triangleCount++;
+                    }
 
                 }
+
+                var gameCell = new GameObject();
+                gameCell.AddComponent<MeshFilter>();
+                Mesh mesh = new Mesh();
+
+                mesh.Clear();
+                mesh.vertices = meshPoints;
+                mesh.triangles = triangles;
+
+                gameCell.GetComponent<MeshFilter>().mesh = mesh;
+
+                gameCell.AddComponent<MeshRenderer>();
+                gameCell.GetComponent<MeshRenderer>().material.color = Color.green;
+
+                _siteObjects.Add(gameCell);
             }
         }
     }
@@ -151,10 +197,13 @@ public class FractureTest : MonoBehaviour {
             Gizmos.DrawLine(new Vector3(siteSrc.xmin, siteSrc.ymin, 0), new Vector3(siteSrc.xmax, 0, siteSrc.ymax));
         }
 
-        foreach (var site in _sites)
+        if(_sites != null)
         {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(new Vector3(site.x, site.y, 0), 0.1f);
+            foreach (var site in _sites)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawWireSphere(new Vector3(site.x, site.y, 0), 0.1f);
+            }
         }
 
         if (_result != null)
