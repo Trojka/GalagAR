@@ -13,6 +13,14 @@ public class FractureTest : MonoBehaviour {
     List<GameObject> _siteObjects;
     BoundingRect _bounds;
 
+    [Range(10, 100)]
+    public float explosionForce = 100;
+
+    [Range(0, 20)]
+    public float explosionRadius = 10;
+
+    public Transform explosionCenter;
+
 	// Use this for initialization
 	void Start () {
         _sites = new List<Point>();
@@ -32,6 +40,7 @@ public class FractureTest : MonoBehaviour {
             CreateSites();
             CalculateVoronoi();
             Fracture();
+            Explode();
         }
 	}
 
@@ -150,43 +159,67 @@ public class FractureTest : MonoBehaviour {
                     meshPoints[meshCount] = new Vector3(pt2.x, pt2.y, z);
                     meshCount++;
 
-                    // clockwise means ordering by x 
-                    //  take the first 
-                    //      and then order remaining two by y 
                     var triangleCorners = new [] { 
-                        new { pt1 = meshPoints[0], i = 0 }, 
-                        new { pt1 = meshPoints[meshCount - 1], i = meshCount - 1 }, 
-                        new { pt1 = meshPoints[meshCount - 2], i = meshCount - 2 } 
+                        new Vector4(meshPoints[0].x, meshPoints[0].y, meshPoints[0].z, 0 ), 
+                        new Vector4(meshPoints[meshCount - 1].x, meshPoints[meshCount - 1].y, meshPoints[meshCount - 1].z, meshCount - 1 ), 
+                        new Vector4(meshPoints[meshCount - 2].x, meshPoints[meshCount - 2].y, meshPoints[meshCount - 2].z, meshCount - 2 ) 
                     }.ToList();
 
-                    var firstCorner = triangleCorners.OrderBy(c => c.pt1.x).First();
-                    triangles[triangleCount] = firstCorner.i;
-                    triangleCount++;
+                    var sorted = SortClockwise.Sort(triangleCorners);
 
-                    var remainingCorners = triangleCorners.OrderBy(c => c.pt1.x).Skip(1).OrderByDescending(c => c.pt1.y).ToList();
-                    foreach(var c in remainingCorners) {
-                        triangles[triangleCount] = c.i;
-                        triangleCount++;
-                    }
+                    triangles[triangleCount] = (int)sorted[0].w;
+                    triangleCount++;
+                    triangles[triangleCount] = (int)sorted[1].w;
+                    triangleCount++;
+                    triangles[triangleCount] = (int)sorted[2].w;
+                    triangleCount++;
 
                 }
 
-                var gameCell = new GameObject();
-                gameCell.AddComponent<MeshFilter>();
-                Mesh mesh = new Mesh();
 
-                mesh.Clear();
-                mesh.vertices = meshPoints;
-                mesh.triangles = triangles;
-
-                gameCell.GetComponent<MeshFilter>().mesh = mesh;
-
-                gameCell.AddComponent<MeshRenderer>();
-                gameCell.GetComponent<MeshRenderer>().material.color = Color.green;
-
-                _siteObjects.Add(gameCell);
+                _siteObjects.Add(CreateCell(meshPoints, triangles));
             }
         }
+    }
+
+    private GameObject CreateCell(Vector3[] meshPoints, int[] triangles) {
+        var gameCell = new GameObject();
+        gameCell.AddComponent<MeshFilter>();
+        Mesh mesh = new Mesh();
+
+        mesh.Clear();
+        mesh.vertices = meshPoints;
+        mesh.triangles = triangles;
+
+        gameCell.GetComponent<MeshFilter>().mesh = mesh;
+
+        gameCell.AddComponent<MeshRenderer>();
+        gameCell.GetComponent<MeshRenderer>().material.color = Color.green;
+
+        gameCell.AddComponent<BoxCollider>();
+
+        gameCell.AddComponent<Rigidbody>();
+        gameCell.GetComponent<Rigidbody>().mass = 0.1f;
+        gameCell.GetComponent<Rigidbody>().useGravity = true;
+
+        return gameCell;
+    }
+
+    void Explode()
+    {
+        Debug.Log("Explode");
+
+        //int partIndex = (int)(_wallWidth * (1 + _wallHeight) / 2);
+        //var part = _wallParts[partIndex];
+
+        //part.GetComponent<MeshRenderer>().material = explosionPartMaterial;
+
+        foreach (var part in _siteObjects)
+        {
+            var partRigidBody = part.GetComponent<Rigidbody>();
+            partRigidBody.AddExplosionForce(explosionForce, explosionCenter.position, explosionRadius, 0f, ForceMode.Impulse);
+        }
+
     }
 
     private void OnDrawGizmos()
