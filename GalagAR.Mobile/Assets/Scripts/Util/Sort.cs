@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class SortClockwise {
+public class Sort {
 
-    public static List<Vector4> Sort(List<Vector4> pointList) {
+    public static List<Vector4> SortClockwise(List<Vector4> pointList) {
         Vector3 center = new Vector3(
             pointList.Select(v => v.x).Average(),
             pointList.Select(v => v.y).Average(),
@@ -17,8 +17,25 @@ public class SortClockwise {
         return pointList;
     }
 
+    public static List<Vector4> SortCounterClockwise(List<Vector4> pointList)
+    {
+        Vector3 center = new Vector3(
+            pointList.Select(v => v.x).Average(),
+            pointList.Select(v => v.y).Average(),
+            pointList.Select(v => v.y).Average()
+        );
+        pointList.Sort((a, b) => CounterClockwiseCompareAroundCenter(a, b, center));
+
+        return pointList;
+    }
+
     public static int ClockwiseCompareAroundCenter(Vector4 a, Vector4 b, Vector4 center) {
         return IsLessAroundCenter(a, b, center) ? -1 : 1;
+    }
+
+    public static int CounterClockwiseCompareAroundCenter(Vector4 a, Vector4 b, Vector4 center)
+    {
+        return IsLessAroundCenter(a, b, center) ? 1 : -1;
     }
 
     //https://stackoverflow.com/questions/6989100/sort-points-in-clockwise-order

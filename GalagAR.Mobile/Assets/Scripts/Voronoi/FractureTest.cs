@@ -19,6 +19,9 @@ public class FractureTest : MonoBehaviour {
     [Range(0, 20)]
     public float explosionRadius = 10;
 
+    [Range(0, 5)]
+    public float fractureMass = 1;
+
     public Transform explosionCenter;
 
 	// Use this for initialization
@@ -137,44 +140,72 @@ public class FractureTest : MonoBehaviour {
             _siteObjects = new List<GameObject>();
         }
 
-        float z = this.transform.position.z;
+        float zfront = this.transform.position.z;
+        float zback = zfront + 3;
         if (_result != null)
         {
             foreach (var cell in _result.cells)
             {
-                var meshPoints = new Vector3[1 + 2 * cell.halfEdges.Count];
-                var triangles = new int[3 * cell.halfEdges.Count];
+                var meshPoints = new Vector3[2 * (1 + 2 * cell.halfEdges.Count)];
+                var triangles = new int[2 * 3 * cell.halfEdges.Count];
 
                 var site = cell.site;
 
-                meshPoints[0] = new Vector3(site.x, site.y, z);
+                int centerFrontIndex = 0;
+                meshPoints[centerFrontIndex] = new Vector3(site.x, site.y, zfront);
 
-                int meshCount = 1;
-                int triangleCount = 0;
+                int centerBackIndex = 1 + 2 * cell.halfEdges.Count;
+                meshPoints[centerBackIndex] = new Vector3(site.x, site.y, zback);
+
+                int frontMeshCount = 1;
+                int backMeshCount = frontMeshCount + 1 + 2 * cell.halfEdges.Count;
+                int frontTriangleCount = 0;
+                int backTriangleCount = 3 * cell.halfEdges.Count;
                 foreach (var halfEdge in cell.halfEdges)
                 {
                     var pt1 = halfEdge.GetStartPoint();
                     var pt2 = halfEdge.GetEndPoint();
 
-                    meshPoints[meshCount] = new Vector3(pt1.x, pt1.y, z);
-                    meshCount++;
-                    meshPoints[meshCount] = new Vector3(pt2.x, pt2.y, z);
-                    meshCount++;
+                    meshPoints[frontMeshCount] = new Vector3(pt1.x, pt1.y, zfront);
+                    frontMeshCount++;
+                    meshPoints[frontMeshCount] = new Vector3(pt2.x, pt2.y, zfront);
+                    frontMeshCount++;
 
-                    var triangleCorners = new [] { 
-                        new Vector4(meshPoints[0].x, meshPoints[0].y, meshPoints[0].z, 0 ), 
-                        new Vector4(meshPoints[meshCount - 1].x, meshPoints[meshCount - 1].y, meshPoints[meshCount - 1].z, meshCount - 1 ), 
-                        new Vector4(meshPoints[meshCount - 2].x, meshPoints[meshCount - 2].y, meshPoints[meshCount - 2].z, meshCount - 2 ) 
+                    var frontTriangleCorners = new [] { 
+                        new Vector4(meshPoints[centerFrontIndex].x, meshPoints[centerFrontIndex].y, meshPoints[centerFrontIndex].z, centerFrontIndex ), 
+                        new Vector4(meshPoints[frontMeshCount - 1].x, meshPoints[frontMeshCount - 1].y, meshPoints[frontMeshCount - 1].z, frontMeshCount - 1 ), 
+                        new Vector4(meshPoints[frontMeshCount - 2].x, meshPoints[frontMeshCount - 2].y, meshPoints[frontMeshCount - 2].z, frontMeshCount - 2 ) 
                     }.ToList();
 
-                    var sorted = SortClockwise.Sort(triangleCorners);
+                    var frontSorted = Sort.SortClockwise(frontTriangleCorners);
 
-                    triangles[triangleCount] = (int)sorted[0].w;
-                    triangleCount++;
-                    triangles[triangleCount] = (int)sorted[1].w;
-                    triangleCount++;
-                    triangles[triangleCount] = (int)sorted[2].w;
-                    triangleCount++;
+                    triangles[frontTriangleCount] = (int)frontSorted[0].w;
+                    frontTriangleCount++;
+                    triangles[frontTriangleCount] = (int)frontSorted[1].w;
+                    frontTriangleCount++;
+                    triangles[frontTriangleCount] = (int)frontSorted[2].w;
+                    frontTriangleCount++;
+
+
+                    meshPoints[backMeshCount] = new Vector3(pt1.x, pt1.y, zback);
+                    backMeshCount++;
+                    meshPoints[backMeshCount] = new Vector3(pt2.x, pt2.y, zback);
+                    backMeshCount++;
+
+                    var backTriangleCorners = new[] {
+                        new Vector4(meshPoints[centerBackIndex].x, meshPoints[centerBackIndex].y, meshPoints[centerBackIndex].z, centerBackIndex ),
+                        new Vector4(meshPoints[backMeshCount - 1].x, meshPoints[backMeshCount - 1].y, meshPoints[backMeshCount - 1].z, backMeshCount - 1 ),
+                        new Vector4(meshPoints[backMeshCount - 2].x, meshPoints[backMeshCount - 2].y, meshPoints[backMeshCount - 2].z, backMeshCount - 2 )
+                    }.ToList();
+
+                    var backSorted = Sort.SortCounterClockwise(backTriangleCorners);
+
+                    triangles[backTriangleCount] = (int)backSorted[0].w;
+                    backTriangleCount++;
+                    triangles[backTriangleCount] = (int)backSorted[1].w;
+                    backTriangleCount++;
+                    triangles[backTriangleCount] = (int)backSorted[2].w;
+                    backTriangleCount++;
 
                 }
 
@@ -199,9 +230,11 @@ public class FractureTest : MonoBehaviour {
         gameCell.GetComponent<MeshRenderer>().material.color = Color.green;
 
         gameCell.AddComponent<BoxCollider>();
+        gameCell.GetComponent<BoxCollider>().center = new Vector3(0, 0, 0);
+        gameCell.GetComponent<BoxCollider>().size = new Vector3(1, 1, 1);
 
         gameCell.AddComponent<Rigidbody>();
-        gameCell.GetComponent<Rigidbody>().mass = 0.1f;
+        gameCell.GetComponent<Rigidbody>().mass = fractureMass;
         gameCell.GetComponent<Rigidbody>().useGravity = true;
 
         return gameCell;
