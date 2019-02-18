@@ -30,6 +30,8 @@ public class FractureTest : MonoBehaviour {
             ymin = this.transform.position.y - this.transform.localScale.y / 2, 
             xmax = this.transform.position.x + this.transform.localScale.x / 2, 
             ymax = this.transform.position.y + this.transform.localScale.y / 2 };
+
+        Debug.Log("The Bounds: " + _bounds.ToString());
 	}
 	
 	// Update is called once per frame

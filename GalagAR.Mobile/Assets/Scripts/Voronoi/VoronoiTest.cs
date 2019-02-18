@@ -17,8 +17,12 @@ public class VoronoiTest : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         _sites = new List<Point>();
-        _bounds = new BoundingRect(){ xmin = 0, ymin = 0, xmax = 100, ymax = 100 };
+        //_bounds = new BoundingRect(){ xmin = 0, ymin = 0, xmax = 100, ymax = 100 };
+        _bounds = new BoundingRect() { xmin = -50, ymin = 0, xmax = 50, ymax = 100 };
         _voronoi = new FortuneVoronoi();
+
+        Debug.Log("The Bounds: " + _bounds.ToString());
+
 	}
 	
 	// Update is called once per frame
@@ -47,6 +51,9 @@ public class VoronoiTest : MonoBehaviour {
 
         float[] bands = new[] { 5f, 15f, 30f };
         int[] bandSiteCount = new[] { 30, 10, 5 };
+        //float[] bands = new[] { 0.5f, 1.5f, 3f };
+        //int[] bandSiteCount = new[] { 30, 10, 5 };
+
 
         float bandMinX = _bounds.xmin;
         float bandMaxX = _bounds.xmax;
