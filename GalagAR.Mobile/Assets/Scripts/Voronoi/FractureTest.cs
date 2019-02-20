@@ -16,7 +16,7 @@ public class FractureTest : MonoBehaviour {
     [Range(10, 100)]
     public float explosionForce = 100;
 
-    [Range(0, 20)]
+    [Range(0, 100)]
     public float explosionRadius = 10;
 
     [Range(0, 5)]
@@ -27,6 +27,7 @@ public class FractureTest : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         _sites = new List<Point>();
+        _siteObjects = new List<GameObject>();
         _voronoi = new FortuneVoronoi();
         _bounds = new BoundingRect() { 
             xmin = this.transform.position.x - this.transform.localScale.x/2, 
@@ -39,12 +40,22 @@ public class FractureTest : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            Reset();
+        }
         if (Input.GetKeyDown(KeyCode.C))
         {
             _result = null;
             CreateSites();
             CalculateVoronoi();
+        }
+        if (Input.GetKeyDown(KeyCode.F))
+        {
             Fracture();
+        }
+        if (Input.GetKeyDown(KeyCode.E))
+        {
             Explode();
         }
 	}
@@ -63,8 +74,8 @@ public class FractureTest : MonoBehaviour {
     {
         var result = new List<RectSiteSource>();
 
-        float[] bands = new[] { 0.5f, 1.5f, 3f };
-        int[] bandSiteCount = new[] { 30, 10, 5 };
+        float[] bands = new[] { 5f, 15f, 30f };
+        int[] bandSiteCount = new[] { 15, 5, 2 };
 
         float bandMinX = _bounds.xmin;
         float bandMaxX = _bounds.xmax;
@@ -126,9 +137,9 @@ public class FractureTest : MonoBehaviour {
         _result = _voronoi.Compute(_sites, _bounds);
     }
 
-    void Fracture()
+    void Reset()
     {
-        if(_siteObjects != null)
+        if (_siteObjects != null)
         {
             Debug.Log("destroying all siteObjects");
             foreach (var siteObject in _siteObjects)
@@ -136,10 +147,14 @@ public class FractureTest : MonoBehaviour {
 
             _siteObjects.Clear();
         }
-        else {
+        else
+        {
             _siteObjects = new List<GameObject>();
         }
+    }
 
+    void Fracture()
+    {
         float zfront = this.transform.position.z;
         float zback = zfront + 3;
         if (_result != null)
@@ -151,11 +166,13 @@ public class FractureTest : MonoBehaviour {
 
                 var site = cell.site;
 
+                var center = new Vector3(site.x, site.y, 0);
+
                 int centerFrontIndex = 0;
-                meshPoints[centerFrontIndex] = new Vector3(site.x, site.y, zfront);
+                meshPoints[centerFrontIndex] = new Vector3(0, 0, zfront);
 
                 int centerBackIndex = 1 + 2 * cell.halfEdges.Count;
-                meshPoints[centerBackIndex] = new Vector3(site.x, site.y, zback);
+                meshPoints[centerBackIndex] = new Vector3(0, 0, zback);
 
                 int frontMeshCount = 1;
                 int backMeshCount = frontMeshCount + 1 + 2 * cell.halfEdges.Count;
@@ -166,9 +183,9 @@ public class FractureTest : MonoBehaviour {
                     var pt1 = halfEdge.GetStartPoint();
                     var pt2 = halfEdge.GetEndPoint();
 
-                    meshPoints[frontMeshCount] = new Vector3(pt1.x, pt1.y, zfront);
+                    meshPoints[frontMeshCount] = new Vector3(pt1.x - center.x, pt1.y - center.y, zfront);
                     frontMeshCount++;
-                    meshPoints[frontMeshCount] = new Vector3(pt2.x, pt2.y, zfront);
+                    meshPoints[frontMeshCount] = new Vector3(pt2.x - center.x, pt2.y - center.y, zfront);
                     frontMeshCount++;
 
                     var frontTriangleCorners = new [] { 
@@ -187,9 +204,9 @@ public class FractureTest : MonoBehaviour {
                     frontTriangleCount++;
 
 
-                    meshPoints[backMeshCount] = new Vector3(pt1.x, pt1.y, zback);
+                    meshPoints[backMeshCount] = new Vector3(pt1.x - center.x, pt1.y - center.y, zback);
                     backMeshCount++;
-                    meshPoints[backMeshCount] = new Vector3(pt2.x, pt2.y, zback);
+                    meshPoints[backMeshCount] = new Vector3(pt2.x - center.x, pt2.y - center.y, zback);
                     backMeshCount++;
 
                     var backTriangleCorners = new[] {
@@ -210,13 +227,14 @@ public class FractureTest : MonoBehaviour {
                 }
 
 
-                _siteObjects.Add(CreateCell(meshPoints, triangles));
+                _siteObjects.Add(CreateCell(center, meshPoints, triangles));
             }
         }
     }
 
-    private GameObject CreateCell(Vector3[] meshPoints, int[] triangles) {
+    private GameObject CreateCell(Vector3 center, Vector3[] meshPoints, int[] triangles) {
         var gameCell = new GameObject();
+        gameCell.transform.position = center;
         gameCell.AddComponent<MeshFilter>();
         Mesh mesh = new Mesh();
 
@@ -229,13 +247,13 @@ public class FractureTest : MonoBehaviour {
         gameCell.AddComponent<MeshRenderer>();
         gameCell.GetComponent<MeshRenderer>().material.color = Color.green;
 
-        gameCell.AddComponent<BoxCollider>();
-        gameCell.GetComponent<BoxCollider>().center = new Vector3(0, 0, 0);
-        gameCell.GetComponent<BoxCollider>().size = new Vector3(1, 1, 1);
+        //gameCell.AddComponent<BoxCollider>();
+        //gameCell.GetComponent<BoxCollider>().center = new Vector3(0, 0, 0);
+        //gameCell.GetComponent<BoxCollider>().size = new Vector3(1, 1, 1);
 
         gameCell.AddComponent<Rigidbody>();
         gameCell.GetComponent<Rigidbody>().mass = fractureMass;
-        gameCell.GetComponent<Rigidbody>().useGravity = true;
+        gameCell.GetComponent<Rigidbody>().useGravity = false;
 
         return gameCell;
     }
@@ -252,6 +270,7 @@ public class FractureTest : MonoBehaviour {
         foreach (var part in _siteObjects)
         {
             var partRigidBody = part.GetComponent<Rigidbody>();
+            partRigidBody.useGravity = true;
             partRigidBody.AddExplosionForce(explosionForce, explosionCenter.position, explosionRadius, 0f, ForceMode.Impulse);
         }
 

@@ -3,6 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class ScriptPartExplosion : MonoBehaviour {
+    
+    [Range(10, 100)]
+    public float explosionForce = 100;
+
+    public Transform explosionCenter;
+
+    public bool applyGravityOnExplosion = false;
 
     List<GameObject> _siteObjects;
 
@@ -17,8 +24,22 @@ public class ScriptPartExplosion : MonoBehaviour {
         {
             CreateWall();
         }
-		
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            Explode();
+        }
 	}
+
+    void Explode() {
+        foreach (var part in _siteObjects)
+        {
+            var partRigidBody = part.GetComponent<Rigidbody>();
+            if (applyGravityOnExplosion)
+                partRigidBody.useGravity = true;
+
+            partRigidBody.AddExplosionForce(explosionForce, explosionCenter.position, 10f, 0f, ForceMode.Impulse);
+        }        
+    }
 
     void CreateWall() {
         if (_siteObjects != null)
@@ -35,9 +56,9 @@ public class ScriptPartExplosion : MonoBehaviour {
         }
 
 
-        _siteObjects.Add(CreateAtPositionByMovingObject(new Vector3(-1, 0, 0)));
-        _siteObjects.Add(CreateAtPositionByMovingObject(new Vector3(0, 0, 0)));
-        _siteObjects.Add(CreateAtPositionByMovingObject(new Vector3(1, 0, 0)));
+        _siteObjects.Add(CreateAtPositionByMovingMesh(new Vector3(-1, 0, 0)));
+        _siteObjects.Add(CreateAtPositionByMovingMesh(new Vector3(0, 0, 0)));
+        _siteObjects.Add(CreateAtPositionByMovingMesh(new Vector3(1, 0, 0)));
     }
 
     GameObject CreateAtPosition(Vector3 pos, Vector3[] meshPoints, int[] triangles) {
@@ -59,9 +80,14 @@ public class ScriptPartExplosion : MonoBehaviour {
         //cell.GetComponent<BoxCollider>().center = new Vector3(0, 0, 0);
         //cell.GetComponent<BoxCollider>().size = new Vector3(1, 1, 1);
 
-        //cell.AddComponent<Rigidbody>();
-        //cell.GetComponent<Rigidbody>().mass = 1;
-        //cell.GetComponent<Rigidbody>().useGravity = true;
+        //cell.AddComponent<MeshCollider>();
+        //cell.GetComponent<MeshCollider>().sharedMesh = mesh;
+        //cell.GetComponent<MeshCollider>().convex = true;
+        ////cell.GetComponent<MeshCollider>().size = new Vector3(1, 1, 1);
+
+        cell.AddComponent<Rigidbody>();
+        cell.GetComponent<Rigidbody>().mass = 1;
+        cell.GetComponent<Rigidbody>().useGravity = false;
 
         return cell;
     }
