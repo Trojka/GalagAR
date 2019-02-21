@@ -32,6 +32,14 @@ https://www.reddit.com/r/gamedev/comments/1mldr3/how_do_i_create_a_3d_dynamic_de
 https://gamedevelopment.tutsplus.com/tutorials/how-to-make-an-object-shatter-into-smaller-fragments-in-unity--gamedev-11795
 https://unity3d.com/learn/tutorials/topics/physics/adding-physics-forces
 
+splines
+=======
+https://forum.unity.com/threads/waypoints-and-constant-variable-speed-problems.32954/
+https://www.habrador.com/tutorials/interpolation/
+
+
+
+
 used software
 =============
 - unity 2018.2.14f1
