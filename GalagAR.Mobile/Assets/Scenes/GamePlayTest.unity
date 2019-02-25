@@ -113,6 +113,93 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &308639568
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 308639570}
+  - component: {fileID: 308639569}
+  m_Layer: 0
+  m_Name: TheBezier
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &308639569
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 308639568}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ec5dd0a09df74251a3bfcd55bb66c76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  points:
+  - {x: 7.407707, y: 0, z: 0.00000011920929}
+  - {x: 6.7607956, y: 1.1995811, z: -3.469914}
+  - {x: 7.3013797, y: -3.458149, z: -5.5200143}
+  - {x: 4, y: -4.516472, z: -8.695496}
+--- !u!4 &308639570
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 308639568}
+  m_LocalRotation: {x: -0, y: 0.28184798, z: -0, w: 0.95945907}
+  m_LocalPosition: {x: -6.3, y: 4.06, z: 5.78}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 32.741, z: 0}
+--- !u!1 &441229173
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 441229175}
+  - component: {fileID: 441229174}
+  m_Layer: 0
+  m_Name: TheLine
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &441229174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 441229173}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82246273569a1472ba6b7eb8491058cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  p0: {x: 4.007106, y: -0.9002228, z: -7.03066}
+  p1: {x: 3, y: 6.071911, z: 3.6143985}
+--- !u!4 &441229175
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 441229173}
+  m_LocalRotation: {x: -0, y: -0.2678272, z: -0, w: 0.963467}
+  m_LocalPosition: {x: 0, y: 0.15, z: -0.18}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: -31.070002, z: 0}
 --- !u!1 &1085614827
 GameObject:
   m_ObjectHideFlags: 0
