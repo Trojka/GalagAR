@@ -4,47 +4,62 @@ using UnityEngine;
 
 public class Stage1Factory : MonoBehaviour {
 
-    public Transform pathR1;
+    public Transform pathT1_1;
 
-    Transform pathR2;
-    Transform pathR3;
-    Transform pathR4;
+    public Transform t1_1_End;
+    public Transform t1_2_End;
+    public Transform t1_3_End;
+    public Transform t1_4_End;
+    public Transform t2_1_End;
+    public Transform t2_2_End;
+    public Transform t2_3_End;
+    public Transform t2_4_End;
 
-    Transform pathL1;
-    Transform pathL2;
-    Transform pathL3;
-    Transform pathL4;
+    Transform pathT1_2;
+    Transform pathT1_3;
+    Transform pathT1_4;
 
-    int endPointIndex = 9;
+    Transform pathT2_1;
+    Transform pathT2_2;
+    Transform pathT2_3;
+    Transform pathT2_4;
+
+    const int endPointIndex = 9;
+
+    void CreateStage1Wave1Paths() {
+        pathT1_2 = Instantiate(pathT1_1);
+        pathT1_3 = Instantiate(pathT1_1);
+        pathT1_4 = Instantiate(pathT1_1);
+
+        pathT2_1 = Instantiate(pathT1_1);
+        pathT2_1.transform.localScale = new Vector3(1, 1, -1);
+        pathT2_2 = Instantiate(pathT2_1);
+        pathT2_3 = Instantiate(pathT2_1);
+        pathT2_4 = Instantiate(pathT2_1);
+
+        pathT1_1.GetComponent<BezierSpline>().SetControlPoint(endPointIndex, t1_1_End.position);
+
+        //Vector3 refEnd = pathT1_1.GetComponent<BezierSpline>().GetControlPoint(endPointIndex);
+        //Vector3 offset = new Vector3(0.5f, 0f, 0f);
+
+        //Vector3 pathR2End = refEnd + offset;
+        pathT1_2.GetComponent<BezierSpline>().SetControlPoint(endPointIndex, t1_2_End.position);
+
+        //Vector3 pathR3End = refEnd + 2 * offset;
+        pathT1_3.GetComponent<BezierSpline>().SetControlPoint(endPointIndex, t1_3_End.position);
+
+        //Vector3 pathR4End = refEnd + 3 * offset;
+        pathT1_4.GetComponent<BezierSpline>().SetControlPoint(endPointIndex, t1_4_End.position);
+
+        pathT2_1.GetComponent<BezierSpline>().SetControlPoint(endPointIndex, t2_1_End.position);
+        pathT2_2.GetComponent<BezierSpline>().SetControlPoint(endPointIndex, t2_2_End.position);
+        pathT2_3.GetComponent<BezierSpline>().SetControlPoint(endPointIndex, t2_3_End.position);
+        pathT2_4.GetComponent<BezierSpline>().SetControlPoint(endPointIndex, t2_4_End.position);
+    }
 
 	// Use this for initialization
 	void Start () {
-        pathR2 = Instantiate(pathR1);
-        pathR3 = Instantiate(pathR1);
-        pathR4 = Instantiate(pathR1);
-
-        Vector3 refEnd = pathR1.GetComponent<BezierSpline>().GetControlPoint(endPointIndex);
-        Vector3 offset = new Vector3(0.5f, 0f, 0f);
-
-        Vector3 pathR2End = refEnd + offset;
-        pathR2.GetComponent<BezierSpline>().SetControlPoint(endPointIndex, pathR2End);
-
-        Vector3 pathR3End = refEnd + 2 * offset;
-        pathR3.GetComponent<BezierSpline>().SetControlPoint(endPointIndex, pathR3End);
-
-        Vector3 pathR4End = refEnd + 3 * offset;
-        pathR4.GetComponent<BezierSpline>().SetControlPoint(endPointIndex, pathR4End);
-
-        pathL1 = Instantiate(pathR1);
-        pathL1.transform.localScale = new Vector3(1, 1, -1);
-        pathL2 = Instantiate(pathL1);
-        pathL3 = Instantiate(pathL1);
-        pathL4 = Instantiate(pathL1);
-
-        pathL2.GetComponent<BezierSpline>().SetControlPoint(endPointIndex, pathR2End);
-        pathL3.GetComponent<BezierSpline>().SetControlPoint(endPointIndex, pathR3End);
-        pathL4.GetComponent<BezierSpline>().SetControlPoint(endPointIndex, pathR4End);
-
+        CreateStage1Wave1Paths();
 	}
 	
 	// Update is called once per frame
