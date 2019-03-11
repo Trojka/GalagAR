@@ -115,6 +115,8 @@ public class BezierSplineEditor : Editor
             size *= 2f;
         }
         Handles.color = modeColors[(int)spline.GetControlPointMode(index)];
+        if (index == 9)
+            Handles.color = Color.red;
         if (Handles.Button(point, handleRotation, size * handleSize, size * pickSize, Handles.DotHandleCap))
         {
             selectedIndex = index;
