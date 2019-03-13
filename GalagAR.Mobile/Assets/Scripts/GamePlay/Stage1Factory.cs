@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Stage1Factory : MonoBehaviour {
 
+    Vector3 mirror = new Vector3(1, 1, -1);
+
     public Transform pathT1_1;
 
     public Transform endPointHolder;
@@ -16,6 +18,8 @@ public class Stage1Factory : MonoBehaviour {
     public Transform t2_2_End;
     public Transform t2_3_End;
     public Transform t2_4_End;
+
+    public Transform EnemyType1;
 
     Transform pathT1_2;
     Transform pathT1_3;
@@ -43,7 +47,7 @@ public class Stage1Factory : MonoBehaviour {
 
         pathT2_1 = Instantiate(pathT1_1, this.transform, false);
         pathT2_1.name = "PathT2_1";
-        pathT2_1.transform.localScale = new Vector3(1, 1, -1);
+        pathT2_1.transform.localScale = mirror;
 
         pathT2_2 = Instantiate(pathT2_1, this.transform, false);
         pathT2_2.name = "PathT2_2";
@@ -63,7 +67,7 @@ public class Stage1Factory : MonoBehaviour {
         pathT1_4.GetComponent<BezierSpline>().SetControlPoint(endPointIndex, this.transform.InverseTransformPoint(t1_4_End.position));
 
         var t2_1_EndLocal = this.transform.InverseTransformPoint(t2_1_End.position);
-        var t2_1_EndLocalScaled = Vector3.Scale(new Vector3(1, 1, -1), t2_1_EndLocal);
+        var t2_1_EndLocalScaled = Vector3.Scale(mirror, t2_1_EndLocal);
         Debug.Log("t2_1_End: " + t2_1_End.position);
         Debug.Log("t2_1_EndLocal: " + t2_1_EndLocal);
         Debug.Log("t2_1_EndLocalScaled: " + t2_1_EndLocalScaled);
@@ -77,6 +81,10 @@ public class Stage1Factory : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         CreateStage1Wave1Paths();
+
+        var et1 = Instantiate(EnemyType1);
+        et1.GetComponent<SplineWalker>().spline = pathT1_1.GetComponent<BezierSpline>();
+        et1.GetComponent<SplineWalker>().Walk();
 	}
 	
 	// Update is called once per frame
