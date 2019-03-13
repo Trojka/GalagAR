@@ -994,6 +994,8 @@ MonoBehaviour:
   t2_3_End: {fileID: 720003419}
   t2_4_End: {fileID: 2061569182}
   EnemyType1: {fileID: 4112694563902062, guid: 52691f222d1e94215a9f0da692ddbfa6, type: 2}
+  MaxNumberOfType1Enemies: 4
+  CreateEnemyEverySeconds: 1.5
 --- !u!1 &2061569181
 GameObject:
   m_ObjectHideFlags: 0
