@@ -20,9 +20,12 @@ public class Stage1Factory : MonoBehaviour {
     public Transform t2_4_End;
 
     public Transform EnemyType1;
-    public int MaxNumberOfType1Enemies;
+    public Transform EnemyType2;
+    public int MaxNumberOfTypeXEnemies;
+
     List<BezierSpline> enemyType1Paths;
-    int numberOfType1Enemies;
+    List<BezierSpline> enemyType2Paths;
+    int numberOfTypeXEnemies;
 
     public float CreateEnemyEverySeconds;
     float progress;
@@ -64,21 +67,14 @@ public class Stage1Factory : MonoBehaviour {
 
         // tranform from worldspace to localspace
         var t1_1_EndLocal = this.transform.InverseTransformPoint(t1_1_End.position);
-        Debug.Log("t1_1_End: " + t1_1_End.position);
-        Debug.Log("t1_1_EndLocal: " + t1_1_EndLocal);
         pathT1_1.GetComponent<BezierSpline>().SetControlPoint(endPointIndex, t1_1_EndLocal);
         pathT1_2.GetComponent<BezierSpline>().SetControlPoint(endPointIndex, this.transform.InverseTransformPoint(t1_2_End.position));
-
         pathT1_3.GetComponent<BezierSpline>().SetControlPoint(endPointIndex, this.transform.InverseTransformPoint(t1_3_End.position));
         pathT1_4.GetComponent<BezierSpline>().SetControlPoint(endPointIndex, this.transform.InverseTransformPoint(t1_4_End.position));
 
         var t2_1_EndLocal = this.transform.InverseTransformPoint(t2_1_End.position);
         var t2_1_EndLocalScaled = Vector3.Scale(mirror, t2_1_EndLocal);
-        Debug.Log("t2_1_End: " + t2_1_End.position);
-        Debug.Log("t2_1_EndLocal: " + t2_1_EndLocal);
-        Debug.Log("t2_1_EndLocalScaled: " + t2_1_EndLocalScaled);
         pathT2_1.GetComponent<BezierSpline>().SetControlPoint(endPointIndex, t2_1_EndLocalScaled);
-
         pathT2_2.GetComponent<BezierSpline>().SetControlPoint(endPointIndex, Vector3.Scale(new Vector3(1, 1, -1), this.transform.InverseTransformPoint(t2_2_End.position)));
         pathT2_3.GetComponent<BezierSpline>().SetControlPoint(endPointIndex, Vector3.Scale(new Vector3(1, 1, -1), this.transform.InverseTransformPoint(t2_3_End.position)));
         pathT2_4.GetComponent<BezierSpline>().SetControlPoint(endPointIndex, Vector3.Scale(new Vector3(1, 1, -1), this.transform.InverseTransformPoint(t2_4_End.position)));
@@ -88,32 +84,48 @@ public class Stage1Factory : MonoBehaviour {
         enemyType1Paths.Add(pathT1_2.GetComponent<BezierSpline>());
         enemyType1Paths.Add(pathT1_3.GetComponent<BezierSpline>());
         enemyType1Paths.Add(pathT1_4.GetComponent<BezierSpline>());
+
+        enemyType2Paths = new List<BezierSpline>();
+        enemyType2Paths.Add(pathT2_1.GetComponent<BezierSpline>());
+        enemyType2Paths.Add(pathT2_2.GetComponent<BezierSpline>());
+        enemyType2Paths.Add(pathT2_3.GetComponent<BezierSpline>());
+        enemyType2Paths.Add(pathT2_4.GetComponent<BezierSpline>());
     }
 
 	// Use this for initialization
 	void Start () {
         CreateStage1Wave1Paths();
         progress = 0;
-        numberOfType1Enemies = 0;
+        numberOfTypeXEnemies = 0;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 
         progress += Time.deltaTime;
-        if((numberOfType1Enemies < MaxNumberOfType1Enemies) && (progress > CreateEnemyEverySeconds)) {
-            var et1 = CreateEnemyType1(numberOfType1Enemies);
-            et1.Walk();
+        if((numberOfTypeXEnemies < MaxNumberOfTypeXEnemies) && (progress > CreateEnemyEverySeconds)) {
+            var et1 = CreateEnemyType1(numberOfTypeXEnemies);
+            var et2 = CreateEnemyType2(numberOfTypeXEnemies);
 
-            numberOfType1Enemies++;
+            et1.Walk();
+            et2.Walk();
+
+            numberOfTypeXEnemies++;
             progress -= CreateEnemyEverySeconds;
         }
 	}
 
     SplineWalker CreateEnemyType1(int enemyNumber) {
-        var et1 = Instantiate(EnemyType1);
-        et1.GetComponent<SplineWalker>().spline = enemyType1Paths[enemyNumber];
+        var e = Instantiate(EnemyType1);
+        e.GetComponent<SplineWalker>().spline = enemyType1Paths[enemyNumber];
 
-        return et1.GetComponent<SplineWalker>();
+        return e.GetComponent<SplineWalker>();
+    }
+
+    SplineWalker CreateEnemyType2(int enemyNumber) {
+        var e = Instantiate(EnemyType2);
+        e.GetComponent<SplineWalker>().spline = enemyType2Paths[enemyNumber];
+
+        return e.GetComponent<SplineWalker>();
     }
 }
