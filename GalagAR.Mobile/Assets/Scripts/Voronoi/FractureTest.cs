@@ -13,14 +13,16 @@ public class FractureTest : MonoBehaviour {
     List<GameObject> _siteObjects;
     BoundingRect _bounds;
 
-    [Range(10, 100)]
-    public float explosionForce = 100;
+    [Range(10, 200)]
+    public float explosionForce = 10;
 
     [Range(0, 100)]
     public float explosionRadius = 10;
 
     [Range(0, 5)]
     public float fractureMass = 1;
+
+    public bool useGravityOnExplosion;
 
     public Transform explosionCenter;
 
@@ -270,7 +272,7 @@ public class FractureTest : MonoBehaviour {
         foreach (var part in _siteObjects)
         {
             var partRigidBody = part.GetComponent<Rigidbody>();
-            partRigidBody.useGravity = true;
+            partRigidBody.useGravity = useGravityOnExplosion;
             partRigidBody.AddExplosionForce(explosionForce, explosionCenter.position, explosionRadius, 0f, ForceMode.Impulse);
         }
 
