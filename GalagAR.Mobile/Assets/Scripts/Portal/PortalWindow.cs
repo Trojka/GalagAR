@@ -98,7 +98,7 @@ public class PortalWindow : MonoBehaviour {
 
             Debug.Log("OnTriggerExit: isColliding:" + isCameraColliding);
         }
-}
+    }
 
     void SomethingColliding() {
 
