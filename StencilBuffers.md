@@ -9,6 +9,7 @@ According to the Unity documentation (https://docs.unity3d.com/Manual/SL-Stencil
 Reading from the Stencil buffer
 
 Writing to the Stencil Buffer
+    Writing to the stencil buffers is done by defining the Pass as Replace the value in the stencil buffer is replaced with the value of the Ref parameter
 
 
 Order of execution
