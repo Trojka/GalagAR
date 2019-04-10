@@ -32,7 +32,6 @@ public class AppController : MonoBehaviour {
             boundaryMarker.SetActive(false);
         }
 
-        // Hide snackbar when currently tracking at least one plane.
         Session.GetTrackables<DetectedPlane>(_allPlanes);
 
         bool horizontalPlanesFound = false;
@@ -74,6 +73,24 @@ public class AppController : MonoBehaviour {
             if (_allPlanes[i].PlaneType == DetectedPlaneType.Vertical)
             {
                 verticalPlanesFound = true;
+
+                _allPlanes[i].GetBoundaryPolygon(_allPlaneBoundaryPoints);
+                foreach (var boundaryPoint in _allPlaneBoundaryPoints)
+                {
+                    if (_allBoundaryMarkers.Count < boundaryPointCount)
+                    {
+                        _allBoundaryMarkers[boundaryPointCount].transform.position = boundaryPoint;
+                        _allBoundaryMarkers[boundaryPointCount].SetActive(true);
+                    }
+                    else
+                    {
+                        var newMarker = Instantiate(_planeBoundaryMarker);
+                        newMarker.transform.position = boundaryPoint;
+                        newMarker.SetActive(true);
+                        _allBoundaryMarkers.Add(newMarker);
+                    }
+                    boundaryPointCount++;
+                }
             }
         }
 
