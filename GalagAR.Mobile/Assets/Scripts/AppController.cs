@@ -13,12 +13,20 @@ public class AppController : MonoBehaviour {
     private List<Vector3> _allPlaneBoundaryPoints = new List<Vector3>();
     private List<GameObject> _allBoundaryMarkers = new List<GameObject>();
 
+    private GameObject _region;
+
     public GameObject _verticalPlaneFoundMarker;
     public GameObject _horizontalPlaneFoundMarker;
     public GameObject _planeBoundaryMarker;
 
-	// Use this for initialization
-	void Start () {
+    public Material _holeMaterial;
+    public Material _objectMaterial;
+
+    public GameObject _hiddenObject;
+    public GameObject _normalObject;
+
+    // Use this for initialization
+    void Start () {
         QuitOnConnectionErrors();
 
         _verticalPlaneFoundMarker.SetActive(false);
@@ -68,6 +76,16 @@ public class AppController : MonoBehaviour {
                     }
                     boundaryPointCount++;
                 }
+
+                if (_region != null)
+                {
+                    Destroy(_region);
+                }
+                _region = RegionFactory.CreateRegion(_allPlanes[i].CenterPose, _allPlaneBoundaryPoints, _holeMaterial);
+
+                _hiddenObject.transform.position = _allPlanes[i].CenterPose.position + new Vector3(0, -0.6f, 0);
+                _normalObject.transform.position = _allPlanes[i].CenterPose.position + new Vector3(0, +0.6f, 0);
+                _normalObject.SetActive(true);
             }
 
             if (_allPlanes[i].PlaneType == DetectedPlaneType.Vertical)
@@ -94,8 +112,8 @@ public class AppController : MonoBehaviour {
             }
         }
 
-        _verticalPlaneFoundMarker.SetActive(verticalPlanesFound);
-        _horizontalPlaneFoundMarker.SetActive(horizontalPlanesFound);
+        //_verticalPlaneFoundMarker.SetActive(verticalPlanesFound);
+        //_horizontalPlaneFoundMarker.SetActive(horizontalPlanesFound);
 
         if (Session.Status != SessionStatus.Tracking)
         {

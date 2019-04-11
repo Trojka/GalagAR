@@ -193,7 +193,7 @@ Transform:
   m_GameObject: {fileID: 61423677}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 2}
-  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 6
@@ -278,7 +278,7 @@ Transform:
   m_GameObject: {fileID: 342182930}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0.5, y: 0, z: 2}
-  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 4
@@ -425,7 +425,7 @@ Transform:
   m_GameObject: {fileID: 574191384}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.5, y: 0, z: 2}
-  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 5
@@ -503,6 +503,10 @@ MonoBehaviour:
   _verticalPlaneFoundMarker: {fileID: 342182930}
   _horizontalPlaneFoundMarker: {fileID: 574191384}
   _planeBoundaryMarker: {fileID: 1902061381}
+  _holeMaterial: {fileID: 2100000, guid: fda494d2f1de44dfb929828def7f8359, type: 2}
+  _objectMaterial: {fileID: 0}
+  _hiddenObject: {fileID: 61423677}
+  _normalObject: {fileID: 342182930}
 --- !u!4 &1390993411
 Transform:
   m_ObjectHideFlags: 0
@@ -527,8 +531,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c669a4cc43174caea1a3748b76f2652, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DetectedPlanePrefab: {fileID: 1654175882956584, guid: 6a35c744e5010405c847fad90282d2be,
-    type: 2}
+  DetectedPlanePrefab: {fileID: 0}
 --- !u!1001 &1796389550
 Prefab:
   m_ObjectHideFlags: 0
@@ -652,7 +655,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1807697714}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 3.78}
+  m_LocalPosition: {x: 0.07, y: 0, z: 1.47}
   m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

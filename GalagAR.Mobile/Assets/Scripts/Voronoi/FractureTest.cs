@@ -190,6 +190,7 @@ public class FractureTest : MonoBehaviour {
                     meshPoints[frontMeshCount] = new Vector3(pt2.x - center.x, pt2.y - center.y, zfront);
                     frontMeshCount++;
 
+                    // using Vector4 structs and saving the index in the w-field
                     var frontTriangleCorners = new [] { 
                         new Vector4(meshPoints[centerFrontIndex].x, meshPoints[centerFrontIndex].y, meshPoints[centerFrontIndex].z, centerFrontIndex ), 
                         new Vector4(meshPoints[frontMeshCount - 1].x, meshPoints[frontMeshCount - 1].y, meshPoints[frontMeshCount - 1].z, frontMeshCount - 1 ), 
